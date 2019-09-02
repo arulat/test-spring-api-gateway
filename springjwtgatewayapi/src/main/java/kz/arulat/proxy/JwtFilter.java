@@ -53,6 +53,18 @@ public class JwtFilter extends AbstractNameValueGatewayFilterFactory {
 
         return response.setComplete();
     }
+    
+    private Mono<Void> onError2(ServerWebExchange exchange, String error){
+
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+
+        byte[] responseByte =  ("{\"status\":\"error\",\"message\":" + error + "}").getBytes(StandardCharsets.UTF_8);
+
+        DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(responseByte);
+
+        return response.writeWith(Flux.just(buffer));
+    }
 
     private String extractJWTToken(ServerHttpRequest request){
 
